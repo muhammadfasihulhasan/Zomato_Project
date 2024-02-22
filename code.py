@@ -5,8 +5,6 @@ import seaborn as sns
 import streamlit as st
 
 st.title("Zomato Bangalore Restaurants")
-st.subheader("About the Project")
-st.write("This project focuses on the exploratory data analysis of the restaurants in Bangalore.")
 
 df = pd.read_csv('zomato.csv')
 
@@ -48,6 +46,16 @@ def cleaning_rate(n):
 df['rate'] = df['rate'].apply(cleaning_rate)
 st.write(df['rate'].head())
 df['rate'].fillna(df['rate'].mean(),inplace = True)
+
+def handlecomma(n):
+    n = str(n)
+    if ',' in n:
+        n = n.replace(',','')
+        return float(n)
+    else:
+        return float(n)
+    
+df['approx_cost(for two people)'] = df['approx_cost(for two people)'].apply(handlecomma)
 
 st.subheader("Dropping null values")
 st.write('Now dropping all the rows with null values.')
@@ -112,7 +120,56 @@ st.write("The updated value count of the column is as follows")
 df['cuisines'] = df['cuisines'].apply(deal_with_cuisines)
 st.write(df['cuisines'].value_counts())
 
+st.subheader("Exploratory Data Analysis")
 st.write("The data is cleaned. Now let's move forward with the visualization.")
+
+st.subheader("Count Plot for Locations")
+loc_count  = plt.figure(figsize = (16,10))
+sns.countplot(x = 'location', data = df)
+plt.xticks(rotation=90)
+plt.title('Location Count')
+st.pyplot(loc_count)
+
+st.write("Using this countplot we can conclude that the maximum number of restaurants are in the BTM area so it is not a good idea to open a restaurant in this very saturated area. ")
+
+st.subheader("Visualizing Online Order")
+st.write("Now we will analyze that how many restaurants are offering online order facility")
+online_order = plt.figure(figsize=(6,6))
+sns.countplot(x='online_order', data= df)
+plt.title('Online Order Count')
+st.pyplot(online_order)
+
+st.subheader("Visualizing Book Table")
+st.write("Now we will analyze that how many restaurants are offering booking or reserving a table facility")
+book_table = plt.figure(figsize=(6,6))
+sns.countplot(x='book_table', data= df)
+plt.title('Book Table Count')
+st.pyplot(book_table)
+
+st.subheader("Visualizing Online Order vs Rate.")
+oo_rate = plt.figure(figsize=(6,6))
+sns.boxplot(x='online_order',y='rate', data= df)
+st.pyplot(oo_rate)
+
+st.subheader("Visualizing Book Table vs Rate.")
+bt_rate = plt.figure(figsize=(6,6))
+sns.boxplot(x='book_table',y='rate', data= df)
+st.pyplot(bt_rate)
+
+st.subheader("Heat Map.")
+a = df.iloc[:,[3,4,8]]
+fig_heatmap, ax_heatmap = plt.subplots(figsize=(6,6))
+sns.heatmap(a.corr(), annot=True, linewidths=0.1, fmt=".2f", ax = ax_heatmap)
+st.pyplot(fig_heatmap)
+st.write("A heatmap showing how different variables are correlated with eachother.")
+
+
+
+
+
+
+
+
 
 
 
